@@ -91,4 +91,72 @@ public class AccountDAO {
 
     }
 
+
+
+
+
+
+
+
+    public Account getAccountbyID(int ID) throws SQLException {
+
+
+        System.out.println("Account ID=" + ID);
+        Connection conn = ConnectionUtil.getConnection();
+        String sql = "SELECT * FROM account where account_id = ?";
+        PreparedStatement preparedStatement = conn.prepareStatement(sql);
+        preparedStatement.setInt(1, ID);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if (rs.next() == false) {
+            System.out.println("no results");
+            return null;
+          } else {
+    
+            do {
+              
+                Account account = new Account(ID, rs.getString(2), rs.getNString(3));
+              System.out.println(account.toString());
+
+                return account;
+
+            } while (rs.next());
+          }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

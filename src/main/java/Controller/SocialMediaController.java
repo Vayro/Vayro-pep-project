@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import DAO.AccountDAO;
 import Model.Account;
+import Model.Message;
 import Service.AccountService;
+import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -44,6 +46,9 @@ public class SocialMediaController {
         // login
 
         app.post("/login", this::login);
+
+        // create message
+        app.post("/messages", this::createMessage);
 
         return app;
     }
@@ -121,6 +126,45 @@ public class SocialMediaController {
         } else {
             ctx.status(401);
             System.out.println("login failed");
+        }
+
+    }
+
+    private void createMessage(Context ctx) throws SQLException, JsonMappingException, JsonProcessingException {
+
+        ObjectMapper om = new ObjectMapper();
+        String jsonString = ctx.body();
+        Message m = om.readValue(jsonString, Message.class);
+        String mText = m.getMessage_text();
+        int userID = m.getPosted_by();
+
+        if (mText.length() < 255 && mText.length() > 0) {
+            Account account = AccountService.getAccountbyID(userID);
+
+            if (account != null) {
+
+                // post message
+
+                Message posted = MessageService.insertDAO(m);
+
+                if (posted != null) {
+
+                    System.out.println("Posted Succesfully");
+
+                    ctx.json(posted);
+                    ctx.status(200);
+                }
+
+            }else{
+                System.out.println("null account");
+                ctx.status(400);
+
+            }
+
+        } else {
+
+            System.out.println("Message length error");
+            ctx.status(400);
         }
 
     }

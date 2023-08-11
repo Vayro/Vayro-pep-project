@@ -52,5 +52,22 @@ public class AccountService {
     return result;
     }
 
+public static Account getAccountbyID(int id) throws SQLException{
+
+    dao = new AccountDAO();
+    Account result = dao.getAccountbyID(id);
+
+
+    return result;
+
+
+}
+
+
+
+
+
+
+
 
 }
