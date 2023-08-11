@@ -1,12 +1,16 @@
 package Controller;
 
+import java.sql.SQLException;
+
 import org.h2.util.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import DAO.AccountDAO;
 import Model.Account;
+import Service.AccountService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -24,7 +28,7 @@ public class SocialMediaController {
      */
     public Javalin startAPI() {
         
-        Javalin app = Javalin.create().start(8080);
+        Javalin app = Javalin.create();
 
 
         app.get("example-endpoint", this::exampleHandler);
@@ -58,19 +62,43 @@ public class SocialMediaController {
 
 
 
-    private void register(Context ctx) throws JsonMappingException, JsonProcessingException {
+    private void register(Context ctx) throws JsonMappingException, JsonProcessingException, SQLException {
         ObjectMapper om = new ObjectMapper();
         String jsonString = ctx.body();
+        System.out.println(om.readValue(jsonString,Account.class));
         Account account = om.readValue(jsonString,Account.class);
-        String username=account.username;
+        System.out.println(jsonString);
+
+        String username=account.getUsername();
         String password=account.getPassword();
+      
+
+
+        if (username.isBlank() || password.length() < 4){
+
+            ctx.status(400);
+            System.out.println("Registration failed");
+
+        }     //check if username already exists
+       else if(AccountService.checkTaken(username)){
+            ctx.status(400);
+            System.out.println("Username Taken");
+            //username taken
+        }else{
+            //insert account
+            System.out.println("trying to insert");
+           Account result= AccountService.insertDAO(account);
+           ctx.status(200);
+           ctx.json(result);
+
+
+
+        }
 
 
 
 
-
-
-        //ctx.json(account);
+        
     }
 
 
