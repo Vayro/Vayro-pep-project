@@ -61,7 +61,7 @@ public class AccountDAO {
         String passedUsername = account.getUsername();
         String passedPassword = account.getPassword();
 
-        System.out.println("Trying to insert using DAO: " + account.toString());
+        System.out.println("Trying to login using: " + account.toString());
         Connection conn = ConnectionUtil.getConnection();
         String sql = "SELECT * FROM account where username = ?";
         PreparedStatement preparedStatement = conn.prepareStatement(sql);
@@ -74,7 +74,7 @@ public class AccountDAO {
             String retrievedUsername = rs.getString(2);
             String retrievedPassword = rs.getString(3);
 
-            if (retrievedPassword == passedPassword) {
+            if (retrievedPassword.equals(passedPassword)) {
 
                 System.out.println("passwords match");
                 return new Account(retrievedID, retrievedUsername, retrievedPassword);

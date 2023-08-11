@@ -99,7 +99,7 @@ public class SocialMediaController {
 
         if (username.isBlank() || password.length() < 4) {
 
-            ctx.status(400);
+            ctx.status(401);
             System.out.println("login failed");
 
         } // check if username already exists
@@ -113,13 +113,13 @@ public class SocialMediaController {
                 ctx.json(a);
 
             } else {
-                ctx.status(400);
+                ctx.status(401);
                 System.out.println("login failed");
 
             }
 
         } else {
-            ctx.status(400);
+            ctx.status(401);
             System.out.println("login failed");
         }
 
