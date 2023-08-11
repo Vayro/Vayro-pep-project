@@ -39,4 +39,18 @@ public class AccountService {
         return result;
     }
 
+   
+
+ public static Account attemptLogin(Account account) throws SQLException{
+
+
+    dao = new AccountDAO();
+    Account result = dao.loginValidation(account);
+
+
+
+    return result;
+    }
+
+
 }
