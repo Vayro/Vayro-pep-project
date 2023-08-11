@@ -1,6 +1,9 @@
 package Controller;
 
+import static org.mockito.ArgumentMatchers.intThat;
+
 import java.sql.SQLException;
+import java.util.List;
 
 import org.h2.util.json.JSONObject;
 
@@ -49,6 +52,17 @@ public class SocialMediaController {
 
         // create message
         app.post("/messages", this::createMessage);
+        // retrieve all messages
+        app.get("/messages", this::getAllMessage);
+        // retrieve messages by ID
+        app.get("/messages/{message_id}", this::getMessageByID);
+
+        // retrieve messages by ID
+        app.delete("/messages/{message_id}", this::deleteMessageByID);
+        // retrieve messages by ID
+        app.patch("/messages/{message_id}", this::updateMessageByID);
+        // retrieve all messages by account ID
+        app.get("/accounts/{account_id}/messages", this::retrieveAllbyAccountID);
 
         return app;
     }
@@ -155,7 +169,7 @@ public class SocialMediaController {
                     ctx.status(200);
                 }
 
-            }else{
+            } else {
                 System.out.println("null account");
                 ctx.status(400);
 
@@ -166,6 +180,90 @@ public class SocialMediaController {
             System.out.println("Message length error");
             ctx.status(400);
         }
+
+    }
+
+    private void getAllMessage(Context ctx) throws SQLException, JsonMappingException, JsonProcessingException {
+
+        List<Message> result = MessageService.getAllMessage();
+        ctx.json(result);
+
+        System.out.println(result.toString());
+        ctx.status(200);
+    }
+
+    private void getMessageByID(Context ctx) throws SQLException, JsonMappingException, JsonProcessingException {
+
+        System.out.println("ID: " + ctx.pathParam("message_id"));
+        Integer inputID = Integer.parseInt(ctx.pathParam("message_id"));
+        System.out.println(ctx.body() + " : " + inputID);
+
+        Message result = MessageService.getMessageByID(inputID);
+        if (result != null) {
+            ctx.json(result);
+        } else {
+
+            ctx.json("");
+        }
+
+        ctx.status(200);
+    }
+
+    private void deleteMessageByID(Context ctx) throws SQLException, JsonMappingException, JsonProcessingException {
+        System.out.println("ID: " + ctx.pathParam("message_id"));
+        Integer inputID = Integer.parseInt(ctx.pathParam("message_id"));
+        System.out.println(ctx.body() + " : " + inputID);
+
+        Message result = MessageService.deleteMessageByID(inputID);
+        if (result != null) {
+            ctx.json(result);
+        } else {
+
+            ctx.json("");
+        }
+
+        ctx.status(200);
+
+    }
+
+    private void updateMessageByID(Context ctx) throws SQLException, JsonMappingException, JsonProcessingException {
+        System.out.println("ID: " + ctx.pathParam("message_id"));
+        ObjectMapper om = new ObjectMapper();
+        String jsonString = ctx.body();
+        Message m = om.readValue(jsonString, Message.class);
+        m.setMessage_id(Integer.parseInt(ctx.pathParam("message_id")));
+        System.out.println("New Messege Text: " + m.getMessage_text());
+        String mText = m.getMessage_text();
+
+        if (mText.length() < 255 && mText.length() > 0) {
+
+            Message result = MessageService.updateMessageByID(m);
+
+            if (result != null) {
+                ctx.json(result);
+                ctx.status(200);
+            } else {
+
+                ctx.status(400);
+            }
+
+        } else {
+            ctx.status(400);
+
+        }
+
+    }
+
+    private void retrieveAllbyAccountID(Context ctx)
+            throws SQLException, JsonMappingException, JsonProcessingException {
+
+        int accountID = Integer.parseInt(ctx.pathParam("account_id"));
+
+        List<Message> resultList = MessageService.retrieveAllbyAccountID(accountID);
+
+        ctx.json(resultList);
+
+        ctx.status(200);
 
     }
 
